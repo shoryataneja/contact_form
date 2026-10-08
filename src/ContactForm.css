@@ -103,6 +103,17 @@
   background: #9333ea;
 }
 
+.cf-submit:disabled {
+  background: #7e22ce;
+  cursor: not-allowed;
+}
+
+.cf-error {
+  color: #f87171;
+  font-size: 0.9rem;
+  margin: 0 0 4px;
+}
+
 @media (max-width: 600px) {
   .cf-row {
     grid-template-columns: 1fr;

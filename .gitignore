@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# local env (contains contact endpoint URL)
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +25,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.env
