@@ -1,0 +1,114 @@
+.cf-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f0f11;
+  padding: 40px 16px;
+}
+
+.cf-card {
+  background: #1a1a1f;
+  border: 1px solid #2a2a35;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 760px;
+}
+
+.cf-card h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.cf-card h2 {
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.cf-subtitle {
+  color: #888;
+  margin: 0 0 32px;
+  font-size: 0.95rem;
+}
+
+.cf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.cf-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.cf-field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.cf-field label span {
+  color: #a855f7;
+}
+
+.cf-field input,
+.cf-field textarea {
+  background: #111115;
+  border: 1px solid #2a2a35;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.cf-field input::placeholder,
+.cf-field textarea::placeholder {
+  color: #555;
+}
+
+.cf-field input:focus,
+.cf-field textarea:focus {
+  border-color: #a855f7;
+}
+
+.cf-submit {
+  width: 100%;
+  padding: 16px;
+  background: #a855f7;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.cf-submit:hover {
+  background: #9333ea;
+}
+
+@media (max-width: 600px) {
+  .cf-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cf-card {
+    padding: 24px 20px;
+  }
+}
