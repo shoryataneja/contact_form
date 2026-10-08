@@ -27,36 +27,30 @@ export default function ContactForm() {
         <p className="cf-subtitle">Fill in the form and we'll be in touch within one business day.</p>
 
         <form onSubmit={handleSubmit}>
-          <div className="cf-row">
-            <div className="cf-field">
-              <label>Full Name <span>*</span></label>
-              <input type="text" placeholder="John Smith" required />
-            </div>
-            <div className="cf-field">
-              <label>Company</label>
-              <input type="text" placeholder="Acme Corp" />
-            </div>
+          <div className="cf-field">
+            <label>Date <span>*</span></label>
+            <input type="date" required />
           </div>
 
           <div className="cf-row">
             <div className="cf-field">
-              <label>Email Address <span>*</span></label>
-              <input type="email" placeholder="john@acmecorp.com" required />
+              <label>Name <span>*</span></label>
+              <input type="text" placeholder="John Smith" required />
             </div>
             <div className="cf-field">
-              <label>Phone Number</label>
-              <input type="tel" placeholder="+1 000 000 0000" />
+              <label>Email <span>*</span></label>
+              <input type="email" placeholder="john@example.com" required />
             </div>
           </div>
 
           <div className="cf-field">
-            <label>Subject <span>*</span></label>
-            <input type="text" placeholder="How can we help you?" required />
+            <label>Phone</label>
+            <input type="tel" placeholder="+1 000 000 0000" />
           </div>
 
           <div className="cf-field">
             <label>Message <span>*</span></label>
-            <textarea placeholder="Tell us about your project, goals, and timeline..." rows={6} required />
+            <textarea placeholder="Your message..." rows={6} required />
           </div>
 
           <button type="submit" className="cf-submit">
