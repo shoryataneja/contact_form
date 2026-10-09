@@ -2,26 +2,55 @@ import { useState } from 'react'
 import './ContactForm.css'
 
 const ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT
+const ENDPOINT_VALID = /^https:\/\//i.test(ENDPOINT || '')
 
-// Reject oversized submissions before they leave the browser (the server re-checks).
-const MAX_PAYLOAD_BYTES = 10 * 1024
-
-if (!ENDPOINT || !/^https:\/\//i.test(ENDPOINT)) {
-  throw new Error(
+if (!ENDPOINT_VALID) {
+  // vite.config.js already fails the build; this only guards a misconfigured dev/prod host.
+  console.error(
     "VITE_CONTACT_ENDPOINT must be set and use https://. Add it to .env or your host's environment variables.",
   )
 }
 
+// Keep in sync with LIMITS in apps-script/Code.gs.
+const MAX = { name: 100, email: 200, phone: 30, message: 5000 }
+
+// Total payload ceiling across all fields (matches MAX_TOTAL_CHARS in Code.gs).
+const MAX_TOTAL_CHARS = 10000
+
+const GENERIC_ERROR = 'Something went wrong. Please try again.'
+
+// Error codes the Apps Script endpoint can return, mapped to user-facing copy.
+const ERROR_MESSAGES = {
+  'payload-too-large': 'Your message is too long. Please shorten it and try again.',
+  'rate-limited': 'Too many messages in a short time. Please try again in a few minutes.',
+  invalid: 'Please check your name, email and message, then try again.',
+}
+
 export default function ContactForm() {
+  if (!ENDPOINT_VALID) {
+    return (
+      <div className="cf-wrapper">
+        <div className="cf-card">
+          <h2>Form unavailable</h2>
+          <p>This form isn't configured yet. Please email us directly.</p>
+        </div>
+      </div>
+    )
+  }
+  return <ContactFormFields />
+}
+
+function ContactFormFields() {
   const [status, setStatus] = useState('idle') // idle | sending | success | error
+  const [errorMsg, setErrorMsg] = useState(GENERIC_ERROR)
   const [ts] = useState(() => Date.now()) // anti-spam: form load time
 
   function payloadTooLarge(form) {
-    let bytes = 0
+    let chars = 0
     for (const [key, value] of new FormData(form)) {
-      if (typeof value === 'string') bytes += key.length + value.length
+      if (typeof value === 'string') chars += key.length + value.length
     }
-    return bytes > MAX_PAYLOAD_BYTES
+    return chars > MAX_TOTAL_CHARS
   }
 
   async function handleSubmit(e) {
@@ -29,6 +58,7 @@ export default function ContactForm() {
     const form = e.currentTarget
 
     if (payloadTooLarge(form)) {
+      setErrorMsg(ERROR_MESSAGES['payload-too-large'])
       setStatus('error')
       return
     }
@@ -36,14 +66,22 @@ export default function ContactForm() {
     setStatus('sending')
 
     try {
-      await fetch(ENDPOINT, {
+      // A FormData body is a "simple" request, so the browser sends it without a
+      // CORS preflight, and Apps Script's redirect target allows reading the response.
+      const res = await fetch(ENDPOINT, {
         method: 'POST',
         body: new FormData(form),
-        mode: 'no-cors',
       })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data || data.ok !== true) {
+        setErrorMsg(ERROR_MESSAGES[data?.error] || GENERIC_ERROR)
+        setStatus('error')
+        return
+      }
       form.reset()
       setStatus('success')
     } catch {
+      setErrorMsg(GENERIC_ERROR)
       setStatus('error')
     }
   }
@@ -84,32 +122,68 @@ export default function ContactForm() {
           <div className="cf-row">
             <div className="cf-field">
               <label htmlFor="cf-name">Name <span>*</span></label>
-              <input id="cf-name" type="text" name="name" placeholder="John Smith" required />
+              <input
+                id="cf-name"
+                type="text"
+                name="name"
+                placeholder="John Smith"
+                maxLength={MAX.name}
+                required
+              />
             </div>
             <div className="cf-field">
               <label htmlFor="cf-email">Email <span>*</span></label>
-              <input id="cf-email" type="email" name="email" placeholder="john@example.com" required />
+              <input
+                id="cf-email"
+                type="email"
+                name="email"
+                placeholder="john@example.com"
+                maxLength={MAX.email}
+                required
+              />
             </div>
           </div>
 
           <div className="cf-field">
             <label htmlFor="cf-phone">Phone</label>
-            <input id="cf-phone" type="tel" name="phone" placeholder="+1 000 000 0000" />
+            <input
+              id="cf-phone"
+              type="tel"
+              name="phone"
+              placeholder="+1 000 000 0000"
+              maxLength={MAX.phone}
+            />
           </div>
 
           <div className="cf-field">
             <label htmlFor="cf-message">Message <span>*</span></label>
-            <textarea id="cf-message" name="message" placeholder="Your message..." rows={6} required />
+            <textarea
+              id="cf-message"
+              name="message"
+              placeholder="Your message..."
+              rows={6}
+              maxLength={MAX.message}
+              required
+            />
           </div>
 
           {status === 'error' && (
             <p role="alert" className="cf-error">
-              Something went wrong. Please try again.
+              {errorMsg}
             </p>
           )}
 
           <button type="submit" className="cf-submit" disabled={status === 'sending'}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+              focusable="false"
+            >
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>

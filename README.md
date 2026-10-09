@@ -1,16 +1,37 @@
-# React + Vite
+# Contact Form
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small React + Vite contact form that posts submissions to a Google Apps Script
+web app, which appends the row to a Google Sheet and emails a notification via Gmail.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Copy `.env.example` to `.env` and set the deployed Apps Script `/exec` URL:
 
-## React Compiler
+   ```
+   VITE_CONTACT_ENDPOINT=https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   The URL must use `https://`; the build fails otherwise.
 
-## Expanding the ESLint configuration
+2. Deploy the backend in `apps-script/Code.gs` (see the setup notes at the top of
+   that file). It is git-ignored because it holds the sheet ID and notification address.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Scripts
+
+- `npm run dev` – start the dev server
+- `npm run build` – production build
+- `npm run preview` — preview the production build
+- `npm run lint` — ESLint
+- `npm test` — Vitest
+
+## Security notes
+
+- Client and server validate and size-limit every field (limits are mirrored in
+  `ContactForm.jsx` and `apps-script/Code.gs`).
+- The endpoint applies a honeypot, a fill-time gate, per-email and global rate
+  limits, duplicate suppression, and a formula-injection guard before writing rows.
+- The form posts a `FormData` body directly to the Apps Script endpoint. Because
+  that is a "simple" request it needs no CORS preflight (which Apps Script cannot
+  answer), and Apps Script's redirect target allows the response to be read. The
+  endpoint always replies with JSON, so validation, rate-limit, and other errors
+  surface to the visitor.
