@@ -15,6 +15,9 @@ dist-ssr
 # local env (contains contact endpoint URL)
 .env
 
+# Apps Script backend (kept local; contains Sheet ID + notify email)
+apps-script/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

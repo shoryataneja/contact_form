@@ -114,6 +114,26 @@
   margin: 0 0 4px;
 }
 
+.cf-hp {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.cf-privacy {
+  color: #777;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 16px 0 0;
+}
+
+.cf-privacy a {
+  color: #a855f7;
+}
+
 @media (max-width: 600px) {
   .cf-row {
     grid-template-columns: 1fr;
