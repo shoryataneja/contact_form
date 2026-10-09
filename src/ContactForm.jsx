@@ -73,7 +73,10 @@ function ContactFormFields() {
         body: new FormData(form),
       })
       const data = await res.json().catch(() => null)
-      if (!res.ok || !data || data.ok !== true) {
+      // A JSON error from the endpoint is authoritative. A non-JSON 200 (an older
+      // deployment that returns plain "OK") is treated as success so a stale
+      // backend degrades gracefully instead of showing a false error.
+      if (!res.ok || data?.ok === false) {
         setErrorMsg(ERROR_MESSAGES[data?.error] || GENERIC_ERROR)
         setStatus('error')
         return

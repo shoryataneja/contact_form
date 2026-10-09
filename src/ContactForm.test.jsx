@@ -48,8 +48,23 @@ describe('ContactForm', () => {
     expect(options.mode).toBeUndefined()
   })
 
-  it('shows the server error message from the response body', async () => {
-    globalThis.fetch = vi
+  it('treats a non-JSON 200 (a stale "OK" endpoint) as success', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => {
+        throw new Error('not json')
+      },
+    })
+
+    render(<ContactForm />)
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Jane' } })
+    submitForm()
+
+    expect(await screen.findByText(/message sent/i)).toBeInTheDocument()
+  })
+
+  it('shows the server error message from the response body', async () => {    globalThis.fetch = vi
       .fn()
       .mockResolvedValue(jsonResponse({ ok: false, error: 'rate-limited' }))
 
